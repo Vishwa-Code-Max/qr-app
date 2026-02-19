@@ -8,7 +8,18 @@ const cors = require("cors");
 const app = express();
 const productroutes= require('./routes/productRoutes')
 
-app.use(cors());
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: [
+      "https://barcode-app-app.netlify.app",
+      "http://localhost:5173"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  })
+);
 app.use(express.json());
 
 console.log("Connecting to DB...");
