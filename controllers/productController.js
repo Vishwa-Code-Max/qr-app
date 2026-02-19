@@ -102,10 +102,21 @@ exports.bulkGenerate = async (req, res) => {
       return res.status(400).json({ message: "Invalid count" });
     }
 
+    // 🔹 Get last inserted product
+    const lastProduct = await Product.findOne().sort({ createdAt: -1 });
+
+    let startNumber = 1;
+
+    if (lastProduct) {
+      const lastSerial = lastProduct.serialNumber; // PRD-0025
+      const lastNumber = parseInt(lastSerial.split("-")[1]);
+      startNumber = lastNumber + 1;
+    }
+
     let products = [];
 
     for (let i = 0; i < count; i++) {
-      const serial = "PRD-" + uuidv4().slice(0, 8).toUpperCase();
+      const serial = `PRD-${String(startNumber + i).padStart(4, "0")}`;
 
       const product = await Product.create({
         serialNumber: serial
