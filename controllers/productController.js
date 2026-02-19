@@ -56,28 +56,39 @@ exports.scanProduct = async (req, res) => {
       return res.status(404).json({ message: "Serial not found" });
     }
 
+    // 🔴 If already scanned → send previous data
     if (product.isScanned) {
       return res.json({
         duplicate: true,
-        message: "Duplicate Scan"
+        message: "Duplicate Scan",
+        previous: {
+          serialNumber: product.serialNumber,
+          scannedAt: product.scannedAt,
+          ticketNumber: product.ticketNumber || null, // optional
+        },
       });
     }
 
+    // 🟢 First time scan
     product.isScanned = true;
     product.scannedAt = new Date();
     await product.save();
 
-    await ScanLog.create({ serialNumber });
+    await ScanLog.create({
+      serialNumber,
+      scannedAt: product.scannedAt,
+    });
 
     res.json({
       duplicate: false,
-      message: "Scan Successful"
+      message: "Scan Successful",
     });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 
